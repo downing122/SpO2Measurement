@@ -1,1 +1,0 @@
-This is an application of SPO2 measurement with android!
