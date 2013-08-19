@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <TextView android:id="@+id/tip"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="请把您的手指覆盖住摄像头"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:textColor="#FF0000" />
+    
+    <TextView
+        android:id="@+id/spo2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="血氧饱和度数据："
+        android:textSize="20sp" />
+    
+    <TextView
+        android:id="@+id/rateLabel"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="心率曲线如下："
+        android:textSize="20sp" />
+"
+    
+    <SurfaceView android:id="@+id/heartRate" 
+        android:layout_width="fill_parent"
+        android:layout_height="250sp"/>
+
+    <FrameLayout
+        android:id="@+id/camera_preview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1" />
+</LinearLayout>
