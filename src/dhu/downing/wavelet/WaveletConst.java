@@ -1,5 +1,10 @@
 package dhu.downing.wavelet;
 
+/**
+ * 对应WaveletEnum中各种小波的滤波函数
+ * @author Tang Ning
+ *
+ */
 public class WaveletConst {
 	public static double[]
 			haar = {0.707106781186548,0.707106781186548},
