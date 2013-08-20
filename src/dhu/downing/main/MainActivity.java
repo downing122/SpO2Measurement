@@ -90,19 +90,16 @@ public class MainActivity extends Activity implements PreviewCallback {
 			
 			@Override
 			public void surfaceDestroyed(SurfaceHolder holder) {
-				// TODO Auto-generated method stub
 			}
 			
 			@Override
 			public void surfaceCreated(SurfaceHolder holder) {
-				// TODO Auto-generated method stub
 				drawBack(holder);
 			}
 			
 			@Override
 			public void surfaceChanged(SurfaceHolder holder, int format, int width,
 					int height) {
-				// TODO Auto-generated method stub
 				drawBack(holder);
 			}
 		});
