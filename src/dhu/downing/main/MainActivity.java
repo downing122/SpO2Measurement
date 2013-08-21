@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
+import dhu.downing.heartrate.HeartRate;
 import dhu.downing.util.ImageUtil;
 
 import android.annotation.SuppressLint;
@@ -46,18 +47,22 @@ public class MainActivity extends Activity implements PreviewCallback {
 	private static final double A = 0.9764;
 	private static final double B = 0.2543;
 	private int count = -30;
+	private int countHeartRate = -30;
 	private int current = 0;
 	private static final int MAX = 50;
 	private double[] rBuffer = new double[MAX];
 	private double[] bBuffer = new double[MAX];
 	private double[] grayBuffer = new double[MAX];
+	private double[] gray = new double[50];
 
 	private Camera mCamera;
 	private CameraPreview mPreview;
 	private MediaRecorder mMediaRecorder;
 	private boolean isRecording = false;
 	private TextView spo2Text;
+	private TextView hrText;
 	private SpO2Task mTask;
+	private HeartRateTask hTask;
 	private SurfaceView surface = null;
 	private SurfaceHolder holder = null;
 	private Paint paint;
@@ -104,6 +109,7 @@ public class MainActivity extends Activity implements PreviewCallback {
 			}
 		});
 		spo2Text = (TextView) findViewById(R.id.spo2);
+		hrText = (TextView) findViewById(R.id.heartrateText);
 
 	}
 
@@ -287,7 +293,6 @@ public class MainActivity extends Activity implements PreviewCallback {
 
 	@Override
 	public void onPreviewFrame(byte[] data, Camera camera) {
-
 		if (null != mTask) {
 			switch (mTask.getStatus()) {
 			case RUNNING:
@@ -301,6 +306,25 @@ public class MainActivity extends Activity implements PreviewCallback {
 
 		try {
 			spo2Text.setText(mTask.execute((Void) null).get());
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		}
+		
+		if (null != hTask) {
+			switch (hTask.getStatus()) {
+			case RUNNING:
+				return;
+			case PENDING:
+				hTask.cancel(false);
+				break;
+			}
+		}
+		hTask = new HeartRateTask(data, camera);
+
+		try {
+			hrText.setText(hTask.execute((Void) null).get());
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} catch (ExecutionException e) {
@@ -406,5 +430,57 @@ public class MainActivity extends Activity implements PreviewCallback {
 			return text;
 		}
 
+	}
+	
+	private class HeartRateTask extends AsyncTask<Void, Void, String>{
+
+		private byte[] mData;
+		private Camera camera;
+
+		public HeartRateTask(byte[] mData, Camera c) {
+			super();
+			this.mData = mData;
+			this.camera = c;
+		}
+		
+		@Override
+		protected String doInBackground(Void... params) {
+			// TODO Auto-generated method stub
+			String result = "心率正在计算，请稍等！";
+			countHeartRate++;
+			if(countHeartRate>=0){
+				Size size = camera.getParameters().getPreviewSize();
+				int width = size.width;
+				int height = size.height;
+				int length = width * height * 3;
+				byte[] rgbBuf = new byte[length];
+				rgbBuf = ImageUtil.decodeYUV420SP(rgbBuf, mData, width, height);
+				byte[] rBuf = new byte[width * height];
+				byte[] bBuf = new byte[width * height];
+				byte[] gBuf = new byte[width * height];
+				for (int i = 0; i < length; i++) {
+					if (i % 3 == 0) {
+						rBuf[i / 3] = rgbBuf[i];
+					} else if (i % 3 == 1) {
+						gBuf[i / 3] = rgbBuf[i];
+					}else{
+						bBuf[i / 3] = rgbBuf[i];
+					}
+				}
+				double red,green,blue;
+				red = ImageUtil.average(rBuf, width, height);
+				green = ImageUtil.average(gBuf, width, height);
+				blue = ImageUtil.average(bBuf, width, height);
+				gray[countHeartRate] = 0.2989 * red + 0.5870 * green + 0.1140 * blue;
+				if(countHeartRate == 49){
+					int rate = HeartRate.calculation(gray, 2500);
+					result = "您的心率为" + rate;
+					countHeartRate--;
+					gray = ImageUtil.leftShift(gray, 1);
+				}
+			}
+			return result;
+		}
+		
 	}
 }

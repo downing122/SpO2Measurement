@@ -102,7 +102,7 @@ public class ImageUtil {
 		ArrayList<Integer> temp = new ArrayList<Integer>();
 		int length = buf.length;
 		for (int i = 2; i < length - 2; i++) {
-			if ((buf[i] > buf[i - 1]) && (buf[i] > buf[i + 1]) ) {//&& (buf[i] > buf[i - 2]) && (buf[i] > buf[i + 2])
+			if ((buf[i] > buf[i - 1]) && (buf[i] > buf[i + 1]) && (buf[i] > buf[i - 2]) && (buf[i] > buf[i + 2])){
 				temp.add(i);
 			}
 		}
