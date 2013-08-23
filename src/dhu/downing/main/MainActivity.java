@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import dhu.downing.heartrate.HeartRate;
@@ -81,7 +82,8 @@ public class MainActivity extends Activity implements PreviewCallback {
 		mCamera = getCameraInstance();
 		Parameters p = mCamera.getParameters();
 		//p.setPreviewFpsRange(20, 20);
-		p.setPreviewFpsRange(20000,20000);
+		p.setPreviewFpsRange(10000,10000);
+		p.setPreviewSize(320, 240);
 		mCamera.setParameters(p);
 		mPreview = new CameraPreview(this, mCamera);
 		FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
@@ -203,7 +205,7 @@ public class MainActivity extends Activity implements PreviewCallback {
 		mCamera = getCameraInstance();
 		Parameters param = mCamera.getParameters();
 		param.setFlashMode(Parameters.FLASH_MODE_TORCH);
-		param.setPreviewFpsRange(20000, 20000);
+		param.setPreviewFpsRange(10000, 10000);
 		mCamera.setParameters(param);
 
 		mMediaRecorder = new MediaRecorder();
@@ -303,7 +305,6 @@ public class MainActivity extends Activity implements PreviewCallback {
 			}
 		}
 		mTask = new SpO2Task(data, camera);
-
 		try {
 			spo2Text.setText(mTask.execute((Void) null).get());
 		} catch (InterruptedException e) {
@@ -311,7 +312,7 @@ public class MainActivity extends Activity implements PreviewCallback {
 		} catch (ExecutionException e) {
 			e.printStackTrace();
 		}
-		
+		/*
 		if (null != hTask) {
 			switch (hTask.getStatus()) {
 			case RUNNING:
@@ -329,7 +330,7 @@ public class MainActivity extends Activity implements PreviewCallback {
 			e.printStackTrace();
 		} catch (ExecutionException e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
 
 	private class SpO2Task extends AsyncTask<Void, Void, String> {
@@ -353,6 +354,7 @@ public class MainActivity extends Activity implements PreviewCallback {
 				Size size = camera.getParameters().getPreviewSize();
 				int width = size.width;
 				int height = size.height;
+				Log.e(TAG, "width:" + width + " height:" + height);
 				int length = width * height * 3;
 				byte[] rgbBuf = new byte[length];
 				rgbBuf = ImageUtil.decodeYUV420SP(rgbBuf, mData, width, height);
@@ -401,7 +403,8 @@ public class MainActivity extends Activity implements PreviewCallback {
 						+ bBuffer[count]);
 				if(rBuffer[count]<200){
 					count=-10;
-					
+					rBuffer = ImageUtil.leftShift(rBuffer,50);
+					bBuffer = ImageUtil.leftShift(bBuffer,50);
 					text = "未检测到手指覆盖";
 				}else{
 					text = "血氧饱和度数据正在计算，请稍候...";
@@ -473,7 +476,7 @@ public class MainActivity extends Activity implements PreviewCallback {
 				blue = ImageUtil.average(bBuf, width, height);
 				gray[countHeartRate] = 0.2989 * red + 0.5870 * green + 0.1140 * blue;
 				if(countHeartRate == 49){
-					int rate = HeartRate.calculation(gray, 2500);
+					int rate = HeartRate.calculation(gray, 5000);
 					result = "您的心率为" + rate;
 					countHeartRate--;
 					gray = ImageUtil.leftShift(gray, 1);
