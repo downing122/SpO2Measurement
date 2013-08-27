@@ -478,6 +478,11 @@ public class MainActivity extends Activity implements PreviewCallback {
 					countHeartRate = -10;
 					ImageUtil.leftShift(gray, 100);
 					result = "未检测到手指覆盖";
+					if(myThread != null){
+						myThread.isRun = false;
+						myThread = null;
+					}
+					flag = true;
 					return result;
 				} else {
 					result = "心率正在计算，请稍候...";
@@ -524,6 +529,10 @@ public class MainActivity extends Activity implements PreviewCallback {
 						thread.start();
 					}*/
 					if(flag){
+						if(myThread == null){
+							myThread = new MainActivity.DrawHeartRateGraphThread(holder);
+							myThread.isRun = true;
+						}
 						myThread.start();
 						flag = false;
 					}
