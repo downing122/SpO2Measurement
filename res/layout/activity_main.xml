@@ -36,7 +36,7 @@
     
     <SurfaceView android:id="@+id/heartRate" 
         android:layout_width="fill_parent"
-        android:layout_height="250sp"/>
+        android:layout_height="210sp"/>
 
     <FrameLayout
         android:id="@+id/camera_preview"

@@ -7,9 +7,12 @@ import dhu.downing.wavelet.Wavelet;
 public class HeartRate {
 	public static int calculation(double[] data,long time){
 		Wavelet wavelet = new Wavelet();
-		double[] temp = wavelet.waveletDenoise(data,3,WaveEnum.Coif5);
-		int peakCount = ImageUtil.countPeak(temp).length;
-		int result = Math.round(60*1000/time*peakCount);
+		double[] temp = wavelet.waveletDenoise(data,1,WaveEnum.Coif5);
+		data = ImageUtil.avgFilter(temp);
+		int peakCount = ImageUtil.countPeak(data).length;
+		int troughCount = ImageUtil.countTrough(data).length;
+		double count = (peakCount+troughCount)/2.0;
+		int result = (int) Math.round(60*1000/time*(count));
 		return result;
 	}
 }

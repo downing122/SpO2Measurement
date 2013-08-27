@@ -101,8 +101,9 @@ public class ImageUtil {
 	public static int[] countPeak(double[] buf) {
 		ArrayList<Integer> temp = new ArrayList<Integer>();
 		int length = buf.length;
-		for (int i = 2; i < length - 2; i++) {
-			if ((buf[i] > buf[i - 1]) && (buf[i] > buf[i + 1]) && (buf[i] > buf[i - 2]) && (buf[i] > buf[i + 2])){
+		for (int i = 4; i < length - 4; i++) {
+			if ((buf[i] > buf[i - 1]) && (buf[i] > buf[i + 1]) && (buf[i] > buf[i - 2]) && (buf[i] > buf[i + 2])&& (buf[i] > buf[i - 3]) && (buf[i] > buf[i + 3])
+					&& (buf[i] > buf[i - 4]) && (buf[i] > buf[i + 4])){
 				temp.add(i);
 			}
 		}
@@ -118,8 +119,9 @@ public class ImageUtil {
 	public static int[] countTrough(double[] buf) {
 		ArrayList<Integer> temp = new ArrayList<Integer>();
 		int length = buf.length;
-		for (int i = 2; i < length - 2; i++) {
-			if ((buf[i] < buf[i - 1]) && (buf[i] < buf[i + 1])) {// && (buf[i] < buf[i - 2]) && (buf[i] < buf[i + 2])
+		for (int i = 4; i < length - 4; i++) {
+			if ((buf[i] < buf[i - 1]) && (buf[i] < buf[i + 1]) && (buf[i] < buf[i - 2]) && (buf[i] < buf[i + 2])&& (buf[i] < buf[i - 3]) && (buf[i] < buf[i + 3])
+					&& (buf[i] < buf[i - 4]) && (buf[i] < buf[i + 4])){
 				temp.add(i);
 			}
 		}
@@ -133,12 +135,20 @@ public class ImageUtil {
 
 	// 计算RGB每个分量的D=Iac/Idc的值
 	public static double[] calculationD(double[] buf) {
+		/*
 		Wavelet wavelet = new Wavelet();
-		double[] temp = wavelet.waveletDenoise(buf,3,WaveEnum.Coif5);
+		double[] temp = wavelet.waveletDenoise(buf,3,WaveEnum.Coif5);*、
+		/*
 		for(int k=0;k<temp.length;k++){
 			Log.e("SpO2Measurement",temp[k]+" ");
 		}
-		double[] avg = avgFilter(temp);
+		try {
+			Thread.currentThread().sleep(100000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
+		double[] avg = avgFilter(buf);
 		int[] peaks = countPeak(avg);
 		int[] troughs = countTrough(avg);
 		int length = peaks.length > troughs.length ? troughs.length

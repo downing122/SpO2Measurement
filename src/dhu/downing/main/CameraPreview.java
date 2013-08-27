@@ -58,6 +58,7 @@ public class CameraPreview extends SurfaceView implements
 	public void openFlash() {
 		Parameters param = mCamera.getParameters();
 		param.setPreviewFpsRange(10000, 10000);
+		param.setPreviewSize(240, 160);
 		param.setFlashMode(Parameters.FLASH_MODE_TORCH);
 		mCamera.setParameters(param);
 	}
