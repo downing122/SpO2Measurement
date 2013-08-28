@@ -24,6 +24,7 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.Rect;
+import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
@@ -88,13 +89,18 @@ public class MainActivity extends Activity implements PreviewCallback {
 
 		mCamera = getCameraInstance();
 		/*
-		 * List<Size> sizes =
-		 * mCamera.getParameters().getSupportedPreviewSizes(); for(int
-		 * i=0;i<sizes.size();i++){ Size size = sizes.get(i); Log.e(TAG,
-		 * "width:" + size.width + " height:" + size.height); } try {
-		 * Thread.currentThread().sleep(100000); } catch (InterruptedException
-		 * e) { // TODO Auto-generated catch block e.printStackTrace(); }
-		 */
+		  List<Size> sizes = mCamera.getParameters().getSupportedPreviewSizes();
+		  for(int i=0;i<sizes.size();i++){
+			  Size size = sizes.get(i); Log.e(TAG,"width:" + size.width + " height:" + size.height);
+		  }
+		  try {
+		  Thread.currentThread().sleep(100000); 
+		  } catch (InterruptedException e) {
+			  // TODO Auto-generated catch block 
+			  e.printStackTrace(); 
+		  }
+		*/
+
 		Parameters p = mCamera.getParameters();
 		// p.setPreviewFpsRange(20, 20);
 		p.setPreviewFpsRange(10000, 10000);
@@ -179,20 +185,14 @@ public class MainActivity extends Activity implements PreviewCallback {
 
 	private static File getOutputMediaFile(int type) {
 
-		File mediaStorageDir = new File(
-				Environment
-						.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-				"SpO2Measurement");
-
+		File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),"SpO2Measurement");
 		if (!mediaStorageDir.exists()) {
 			if (!mediaStorageDir.mkdirs()) {
 				Log.d(TAG, "failed to create directory");
 				return null;
 			}
 		}
-
-		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss")
-				.format(new Date());
+		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
 		File mediaFile;
 		if (type == MEDIA_TYPE_IMAGE) {
 			mediaFile = new File(mediaStorageDir.getPath() + File.separator
@@ -312,6 +312,29 @@ public class MainActivity extends Activity implements PreviewCallback {
 
 	@Override
 	public void onPreviewFrame(byte[] data, Camera camera) {
+		
+//		Thread thread = new Thread(new Runnable() {
+//			@Override
+//			public void run() {
+//				// TODO Auto-generated method stub
+//				File file = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+//				try {
+//					FileOutputStream fos = new FileOutputStream(file);
+//					fos.write(data);
+//					fos.close();
+//				} catch (FileNotFoundException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (IOException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//			}
+//		});
+//		thread.start();
+		
+		saveAsPicture(data, camera);
+		
 		if (null != mTask) {
 			switch (mTask.getStatus()) {
 			case RUNNING:
@@ -347,6 +370,26 @@ public class MainActivity extends Activity implements PreviewCallback {
 			e.printStackTrace();
 		} catch (ExecutionException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	private void saveAsPicture(byte[] data,Camera camera){
+		File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+		if (!pictureFile.exists()) {
+			try {
+				pictureFile.createNewFile();
+				Camera.Parameters parameters = camera.getParameters();
+				Size size = parameters.getPreviewSize();
+				YuvImage image = new YuvImage(data,
+						parameters.getPreviewFormat(), size.width, size.height,
+						null);
+				FileOutputStream filecon = new FileOutputStream(pictureFile);
+				image.compressToJpeg(
+						new Rect(0, 0, image.getWidth(), image.getHeight()),
+						90, filecon);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -533,6 +576,7 @@ public class MainActivity extends Activity implements PreviewCallback {
 							myThread = new MainActivity.DrawHeartRateGraphThread(holder);
 							myThread.isRun = true;
 						}
+						myThread.setData(gray);
 						myThread.start();
 						flag = false;
 					}
@@ -550,6 +594,8 @@ public class MainActivity extends Activity implements PreviewCallback {
 	private class DrawHeartRateGraphThread extends Thread{
 		private Boolean isRun;
 		private SurfaceHolder holder;
+		private double[] data;
+		
 		
 		public Boolean getIsRun() {
 			return isRun;
@@ -576,7 +622,6 @@ public class MainActivity extends Activity implements PreviewCallback {
 			int currentX = 10;
 			int oldX = currentX;
 			ArrayList<Double> temp = new ArrayList<Double>();
-			double[] data = gray;
 			for(int i=0;i<data.length;i++){
 				if(data[i]==0)
 					break;
@@ -625,6 +670,14 @@ public class MainActivity extends Activity implements PreviewCallback {
 					}
 				}
 			}
+		}
+
+		public double[] getData() {
+			return data;
+		}
+
+		public void setData(double[] data) {
+			this.data = data;
 		}
 		
 	}

@@ -14,7 +14,7 @@ import dhu.downing.wavelet.Wavelet;
 
 public class HeartRate {
 	public static int calculation(double[] data,long time){
-		Wavelet wavelet = new Wavelet();
+		/*Wavelet wavelet = new Wavelet();
 		double[] temp = wavelet.waveletDenoise(data,1,WaveEnum.Coif5);
 		final double[] data1 = ImageUtil.avgFilter(temp);
 		Thread thread = new Thread(new Runnable() {
@@ -49,9 +49,10 @@ public class HeartRate {
 				}
 			}
 		});
-		thread.start();
-		int peakCount = ImageUtil.countPeak(data1).length;
-		int troughCount = ImageUtil.countTrough(data1).length;
+		thread.start();*/
+		data = ImageUtil.avgFilter(data);
+		int peakCount = ImageUtil.countPeak(data).length;
+		int troughCount = ImageUtil.countTrough(data).length;
 		double count = (peakCount+troughCount)/2.0;
 		int result = (int) Math.round(60*1000/time*(count));
 		return result;
