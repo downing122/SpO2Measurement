@@ -88,18 +88,6 @@ public class MainActivity extends Activity implements PreviewCallback {
 		initPaint();
 
 		mCamera = getCameraInstance();
-		/*
-		  List<Size> sizes = mCamera.getParameters().getSupportedPreviewSizes();
-		  for(int i=0;i<sizes.size();i++){
-			  Size size = sizes.get(i); Log.e(TAG,"width:" + size.width + " height:" + size.height);
-		  }
-		  try {
-		  Thread.currentThread().sleep(100000); 
-		  } catch (InterruptedException e) {
-			  // TODO Auto-generated catch block 
-			  e.printStackTrace(); 
-		  }
-		*/
 
 		Parameters p = mCamera.getParameters();
 		// p.setPreviewFpsRange(20, 20);
@@ -192,7 +180,7 @@ public class MainActivity extends Activity implements PreviewCallback {
 				return null;
 			}
 		}
-		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(new Date());
 		File mediaFile;
 		if (type == MEDIA_TYPE_IMAGE) {
 			mediaFile = new File(mediaStorageDir.getPath() + File.separator
@@ -617,6 +605,7 @@ public class MainActivity extends Activity implements PreviewCallback {
 			this.holder = holder;
 		}
 		
+		@SuppressLint("NewApi")
 		@Override
 		public void run() {
 			int currentX = 10;
